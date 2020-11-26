@@ -19,6 +19,57 @@
 
 
 
+# The four functions in this code all take as an argument a 40-dimensional vector of attributes x. The following is a list of the component 
+# variables in x. I have added spaces to indicate different variable "groupings". Further information on the variables can be found in
+# the file "Qcovid core clusters".
+# 
+#   1. age
+#   2. bmi
+#   3. town
+#   4. surv
+#   
+#   5. chemocat
+#   6. ethrisk
+#   7. homecat
+#   8. learncat
+#   9. renalcat
+#   
+#   10. b2_82
+#   11. b2_leukolaba
+#   12. b2_prednisone
+#   13. b_AF
+#   14. b_CCF
+#   15. b_asthma
+#   16. b_bloodcancer
+#   17. b_cerebralpalsay
+#   18. b_chd
+#   19. b_cirrhosis
+#   20. b_congenheart
+#   21. b_copd
+#   22. b_dementia
+#   23. b_epilepsy
+#   24. b_fracture4
+#   25. b_neurorare
+#   26. b_parkinsons
+#   27. b_pulmhyper
+#   28. b_pulmrare
+#   29. b_pvd
+#   30. b_ra_sle
+#   31. b_respcancer
+#   32. b_semi
+#   33. b_sicklecelldisease
+#   34. b_stroke
+#   35. b_type1
+#   36. b_type2
+#   37. b_vte
+#   
+#   38. p_marrow6
+#   39. p_radio6
+#   40. p_solidtransport
+
+
+
+
 
 # death_female is a function that predicts the probability of death of a female with attribute vector x.
 
@@ -125,15 +176,15 @@ death_female <- function(x){
    a <- Ichemocat[ x[5] ]  + Iethrisk[ x[6] ] + Ihomecat[ x[7] ] + Ilearncat[ x[8] ] + Irenalcat[ x[9] ]
    
    a <- a + 0.0535266800950749549459218 * age_1
-   - 0.0200935878258154260178614 * age_2
-   - 19.7435582245984164728724863 * bmi_1
-   + 6.6648702078668167203545636 * bmi_2
-   + 0.0787269477751315061020421 * town
+          - 0.0200935878258154260178614 * age_2
+          - 19.7435582245984164728724863 * bmi_1
+          + 6.6648702078668167203545636 * bmi_2
+          + 0.0787269477751315061020421 * town
   
   
    a <- a + (coef %*% x[10:40] ) 
-                   -0.0200621605517602719093162 * age_1 * x[37] 
-                   +0.0074957790032429043661222 * age_2 * x[37]
+          -0.0200621605517602719093162 * age_1 * x[37] 
+          +0.0074957790032429043661222 * age_2 * x[37]
    
    
    score <- 100.0 * (1 -  survivor[ x[4] ]^( exp(a) ) ) 
@@ -264,8 +315,8 @@ hospital_female <- function(x){
   
   
   a <- a + (coef %*% x[10:40] ) 
-  -1.1514860942738034399468461 * age_1 * x[37] 
-  + 0.0018396028070442396740169 * age_2 * x[37]
+         -1.1514860942738034399468461 * age_1 * x[37] 
+         + 0.0018396028070442396740169 * age_2 * x[37]
   
   score <- 100.0 * (1 -  survivor[ x[4] ]^( exp(a) ) ) 
   
@@ -391,8 +442,8 @@ death_male <- function(x){
   
   
   a <- a + (coef %*% x[10:40] ) 
-  -0.5325370730252168005591784 * age_1 * x[37] 
-  +0.0013434948852218797209906 * age_2 * x[37]
+         -0.5325370730252168005591784 * age_1 * x[37] 
+         +0.0013434948852218797209906 * age_2 * x[37]
   
   score <- 100.0 * (1 -  survivor[ x[4] ]^( exp(a) ) ) 
   
@@ -515,15 +566,15 @@ hospital_male <- function(x){
   a <- Ichemocat[ x[5] ]  + Iethrisk[ x[6] ] + Ihomecat[ x[7] ] + Ilearncat[ x[8] ] + Irenalcat[ x[9] ]
   
   a <- a -9.8655000090771149956481167 * age_1
-  +0.0372128338797922050829037 * age_2
-  +21.1033159148484443790039222 * bmi_1
-  +7.4762210517919633900874032 * bmi_2
-  + 0.0763068123197961217796248 * town
+         +0.0372128338797922050829037 * age_2
+         +21.1033159148484443790039222 * bmi_1
+         +7.4762210517919633900874032 * bmi_2
+         +0.0763068123197961217796248 * town
   
   
   a <- a + (coef %*% x[10:40] ) 
-  + 8.1824740477927431214766330 * age_1 * x[37] 
-  -0.0088155777714664287220137 * age_2 * x[37]
+         + 8.1824740477927431214766330 * age_1 * x[37] 
+         -0.0088155777714664287220137 * age_2 * x[37]
   
   score <- 100.0 * (1 -  survivor[ x[4] ]^( exp(a) ) ) 
   
