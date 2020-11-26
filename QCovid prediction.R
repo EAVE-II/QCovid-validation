@@ -19,6 +19,7 @@
 
 
 
+
 # death_female is a function that predicts the probability of death of a female with attribute vector x.
 
 death_female <- function(x){
