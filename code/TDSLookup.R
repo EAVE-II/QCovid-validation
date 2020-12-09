@@ -1,0 +1,34 @@
+
+
+library(readxl)
+
+library(data.table)
+
+library(dplyr)
+
+# Import Output area, Data zone table
+
+url1 <- 'https://www.nrscotland.gov.uk/files//geography/2011-census/OA_DZ_IZ_2011.xlsx'
+
+download.file(url1, 'OA_DZ', mode="wb")
+
+OA_DZ <-read_excel('OA_DZ')
+
+# Import Outut area, Townsend deprivation score table
+
+url2 <- 'http://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/Townsend_Deprivation_Scores/Scores/Scores-%202011%20UK%20Ouput%20Areas.csv'
+
+OA_TDS <- fread(url2, data.table = FALSE)
+
+
+# Merge OA_TDS and OA_DZ by the Output area column
+
+DZ_TDS <- merge(OA_TDS, OA_DZ, by.x = "geo_code", by.y = "OutputArea2011Code")
+
+DZ_TDS <- DZ_TDS[ c('DataZone2011Code', 'TDS') ]
+
+
+# Write to a csv
+
+write.csv(DZ_TDS, '../data/DZ_TDS'  )
+
