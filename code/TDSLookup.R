@@ -1,4 +1,21 @@
 
+###################################################################### 
+
+## Title: External validation of the QCOVID risk prediction algorithm to estimate future risk of COVID-19 hospitalisation and death: 
+##        a prospective cohort study 
+
+## Short title: QCovid validation
+
+## DOI: 
+
+## Code author: Steven Kerr
+
+## Description: This code takes the Townsend deprivation score (TDS) by output area from the 2011 UK census, and merges it with Scottish
+#               data zone (DZ) to output area look up table, to give TDS by data zone.
+
+###################################################################### 
+
+
 
 library(readxl)
 
