@@ -4,7 +4,6 @@ library(readxl)
 
 library(data.table)
 
-library(dplyr)
 
 # Import Output area, Data zone table
 
@@ -30,5 +29,5 @@ DZ_TDS <- DZ_TDS[ c('DataZone2011Code', 'TDS') ]
 
 # Write to a csv
 
-write.csv(DZ_TDS, '../data/DZ_TDS'  )
+write.csv(DZ_TDS, '../data/DZ_TDS.csv'  )
 
