@@ -91,8 +91,6 @@ death_female <- function(x){
                  1.2595202625466794810193960, 
                  2.8514552483447963560081462) 
   
-                
-  
   Iethrisk <- c( 0,
                  0,
                  0.6389369130057840351355480,
@@ -104,20 +102,13 @@ death_female <- function(x){
                  0.1930811621976745162676536,
                  0.5483388756920363205082936)
   
-  
   Ihomecat <- c(0,
                 1.2843897452012438265001038,
                 0.3902468934897107555315188)
   
-
-  
   Ilearncat <- c(0,
                  0.3039596464330543423848496,
                  3.4826484000729771572935078)
-  
-
-  
-  
   
   Irenalcat <- c(0,
                  0,
@@ -128,9 +119,7 @@ death_female <- function(x){
                  2.0594912500810331756895266)
   
   
-  
-  
-  # dage, age_1, age_2, bmi_1, bmi-2 and town are all new variables derived from elements of x
+# dage, age_1, age_2, bmi_1, bmi-2 and town are all new variables derived from elements of x
   
   dage <- x[,1]/10
   
@@ -182,11 +171,6 @@ death_female <- function(x){
            0.3787854828143376040294754)
   
   
-  
-  
-  
-  
-  
   # score is the predicted probability as a percentage.
   # a is used in calculating score.
   
@@ -195,16 +179,12 @@ death_female <- function(x){
    a <- a + 0.0535266800950749549459218 * age_1 - 0.0200935878258154260178614 * age_2 - 19.7435582245984164728724863 * bmi_1 +
             6.6648702078668167203545636 * bmi_2 + 0.0787269477751315061020421 * town
   
-  
-   a <- a + (as.matrix(x[,10:40]) %*% coef ) - 0.0200621605517602719093162 * age_1 * x[,36] + 0.0074957790032429043661222 * age_2 * x[,36]
+  a <- a + (as.matrix(x[,10:40]) %*% coef ) - 0.0200621605517602719093162 * age_1 * x[,36] + 0.0074957790032429043661222 * age_2 * x[,36]
    
   
-   
-   score <- 100.0 * (1 -  exp^( exp(a) * log( survivor[ x[,4] ] )  )  )
+  score <- 100.0 * (1 -  exp^( exp(a) * log( survivor[ x[,4] ] )  )  )
                        
-                       
-           
-   return(score)
+  return(score)
 }
 
 
