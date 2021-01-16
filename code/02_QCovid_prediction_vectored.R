@@ -16,8 +16,6 @@
 
 
 
-
-
 # The four functions in this code all take as an argument an n x 40 matrix where each column is an attribute. The following is an orderer 
 # list of the columns in x. I have added spaces to indicate different variable "groupings". Further information on the variables can be found in
 # the file "Qcovid core clusters".
@@ -87,7 +85,8 @@ death_female <- function(x){
   # Ichemocat, iethrisk, Ihomecat, Ilearncat and Irenalcat each contain estimated parameter values corresponding to categorical variables
   # that can take on multiple values.
  
-  Ichemocat <- c(0, 0.8345234517964427167768804, 
+  Ichemocat <- c(0, 
+                 0.8345234517964427167768804, 
                  1.2595202625466794810193960, 
                  2.8514552483447963560081462) 
   
@@ -179,10 +178,10 @@ death_female <- function(x){
    a <- a + 0.0535266800950749549459218 * age_1 - 0.0200935878258154260178614 * age_2 - 19.7435582245984164728724863 * bmi_1 +
             6.6648702078668167203545636 * bmi_2 + 0.0787269477751315061020421 * town
   
-  a <- a + (as.matrix(x[,10:40]) %*% coef ) - 0.0200621605517602719093162 * age_1 * x[,36] + 0.0074957790032429043661222 * age_2 * x[,36]
+  a <- a + as.vector( (as.matrix(x[,10:40]) %*% coef ) - 0.0200621605517602719093162 * age_1 * x[,36] + 0.0074957790032429043661222 * age_2 * x[,36] )
    
   
-  score <- 100.0 * (1 -  exp^( exp(a) * log( survivor[ x[,4] ] )  )  )
+  score <- 100.0 * (1 -  exp( exp(a) * log( survivor[ x[,4] ] )  )  )
                        
   return(score)
 }
@@ -306,15 +305,12 @@ hospital_female <- function(x){
           2.7351660262730592698687815 * bmi_2 + 0.0837552324383479818159515 * town
   
   
-  a <- a + (as.matrix(x[,10:40]) %*% coef ) - 1.1514860942738034399468461 * age_1 * x[,36] + 0.0018396028070442396740169 * age_2 * x[,36]
+  a <- a + as.vector( ( as.matrix(x[,10:40]) %*% coef ) - 1.1514860942738034399468461 * age_1 * x[,36] + 0.0018396028070442396740169 * age_2 * x[,36] )
   
-  score <- 100.0 * (1 -  exp^( exp(a) * log( survivor[ x[,4] ] )  )  )
+  score <- 100.0 * (1 -  exp( exp(a) * log( survivor[ x[,4] ] )  )  )
   
   return(score)
 }
-
-
-
 
 
 
@@ -428,9 +424,9 @@ death_male <- function(x){
           20.3035078034241216471400548 * bmi_2  + 0.0812689785693790078813237 * town
   
   
-  a <- a + (as.matrix(x[,10:40]) %*% coef) - 0.5325370730252168005591784 * age_1 * x[,36] + 0.0013434948852218797209906 * age_2 * x[,36]
+  a <- a + as.vector( ( as.matrix(x[,10:40]) %*% coef) - 0.5325370730252168005591784 * age_1 * x[,36] + 0.0013434948852218797209906 * age_2 * x[,36] )
   
-  score <- 100.0 * (1 -  exp^( exp(a) * log( survivor[ x[,4] ] )  )  ) 
+  score <- 100.0 * (1 -  exp( exp(a) * log( survivor[ x[,4] ] )  )  ) 
   
   return(score)
 }
@@ -554,11 +550,32 @@ hospital_male <- function(x){
           7.4762210517919633900874032 * bmi_2 + 0.0763068123197961217796248 * town
   
   
-  a <- a + (as.matrix(x[,10:40]) %*% coef) + 8.1824740477927431214766330 * age_1 * x[,36] - 0.0088155777714664287220137 * age_2 * x[,36]
+  a <- a +  as.vector( ( as.matrix(x[,10:40]) %*% coef) + 8.1824740477927431214766330 * age_1 * x[,36] - 0.0088155777714664287220137 * age_2 * x[,36] )
   
-  score <- 100.0 * (1 -  exp^( exp(a) * log( survivor[ x[,4] ] )  )  )
+  score <- 100.0 * (1 -  exp( exp(a) * log( survivor[ x[,4] ] )  )  )
   
   return(score)
 }
+
+
+
+# Some quick tests to see if it works. Can also compare to output of Qcovid algorithm online
+# The TDS -4.147567 is for the postcode AB1 0AB
+
+
+test1 <- c( c(25, 23.4, -4.147567, 91), rep(1,5), rep(0,31) )
+
+test2 <- c( c(90, 23.4, -4.147567, 91), rep(1,5), rep(0,31) )
+
+test <- rbind(test1,test2)
+
+death_male(test)
+
+hospital_male(test)
+
+death_female(test)
+
+hospital_female(test)
+
 
 
