@@ -1,5 +1,5 @@
 # EAVE II Analysis Repository
-## External validation of the QCOVID risk prediction algorithm to estimate future risk of COVID-19 hospitalisation and death: a prospective cohort study 
+## An external validation of the QCovid risk prediction algorithm in Scotland
 
 
 ### Paper Details
