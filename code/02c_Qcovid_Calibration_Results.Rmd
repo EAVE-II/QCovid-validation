@@ -1,0 +1,121 @@
+---
+title: "Qcovid Calibrations"
+author: "Emily Moore + Chris Robertson - EAVE-II"
+date: "12/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+
+Location <- "/conf/"  # Server
+#Location <- "//isdsf00d03/"  # Desktop
+
+tab_conc <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_Concordance_P1.rds"))
+
+tab_royston <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_Royston_D_P1.rds"))
+
+tab_brier <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_Brier_P1.rds"))
+
+g_hosp_m <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Calibration_Curve_Hosp_Male.rds"))
+
+g_hosp_f <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Calibration_Curve_Hosp_Female.rds"))
+
+g_death_m <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Calibration_Curve_Death_Male.rds"))
+
+g_death_f <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Calibration_Curve_Death_Female.rds"))
+
+```
+
+## First Period Agreement (Mar 01 - Apr 30)
+
+
+```{r table 1, echo=FALSE }
+ options(knitr.kable.NA = '')
+
+tab_conc %>% dplyr::select(-SE_C) %>% 
+  kableExtra::kbl(caption = "Table 1: Period 1 Concordance", digits=c(0,3,3,3)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") 
+
+tab_royston %>% 
+  kableExtra::kbl(caption = "Table 1: Period 1 Royston and Rsqd", digits=c(0,2,2,2,3,3,3)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") 
+
+tab_brier %>%  dplyr::select(-se.conservative) %>% 
+  kableExtra::kbl(caption = "Table 1: Period 1 Brier - Survival", digits=c(0,4,4,4)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") 
+
+```
+
+## First Period Calibration
+
+
+```{r graph 1, echo=FALSE }
+
+print(g_death_f)
+
+print(g_hosp_f)
+
+print(g_death_m)
+
+print(g_hosp_m)
+
+```
+
+
+
+```{r period 2, echo=FALSE}
+
+tab_conc <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_Concordance_P2.rds"))
+
+tab_royston <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_Royston_D_P2.rds"))
+
+tab_brier <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_Brier_P2.rds"))
+
+g_hosp_m <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Calibration_Curve_Hosp_Male_P2.rds"))
+
+g_hosp_f <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Calibration_Curve_Hosp_Female_P2.rds"))
+
+g_death_m <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Calibration_Curve_Death_Male_P2.rds"))
+
+g_death_f <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Calibration_Curve_Death_Female_P2.rds"))
+
+```
+
+## Second Period Agreement (May 01 - June 30)
+
+
+```{r table 1 p2, echo=FALSE }
+ options(knitr.kable.NA = '')
+
+tab_conc %>% dplyr::select(-SE_C) %>% 
+  kableExtra::kbl(caption = "Table 1: Period 1 Concordance", digits=c(0,3,3,3)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") 
+
+tab_royston %>% 
+  kableExtra::kbl(caption = "Table 1: Period 1 Royston and Rsqd", digits=c(0,2,2,2,3,3,3)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") 
+
+tab_brier %>%  dplyr::select(-se.conservative) %>% 
+  kableExtra::kbl(caption = "Table 1: Period 1 Brier - Survival", digits=c(0,4,4,4)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") 
+
+```
+
+## Second Period Calibration
+
+
+```{r graph 1 p2, echo=FALSE }
+
+print(g_death_f)
+
+print(g_hosp_f)
+
+print(g_death_m)
+
+print(g_hosp_m)
+
+```
+
+

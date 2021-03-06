@@ -1,0 +1,69 @@
+---
+title: "Qcovid descriptions - Period 2 (May 01 - June 30)"
+author: "Emily Moore + Chris Robertson - EAVE-II"
+date: "05/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+
+#source("/conf/EAVE/GPanalysis/QCovid_Validation/progs/EM/01_QCovid_Descriptions.R")
+Location <- "/conf/"  # Server
+#Location <- "//isdsf00d03/"  # Desktop
+
+ft <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_descr_tab1_clinical_P2.rds"))
+
+ft_demog <- readRDS(paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_descr_tab2_demog_P2.rds"))
+
+```
+
+## Q covid risk groups descriptors
+
+
+```{r table 1, echo=FALSE }
+ options(knitr.kable.NA = '')
+
+ft %>% dplyr::select(Var, Values, N, Percent, hosp_covid, Percent_hosp, covid_cod, Percent_covid_cod) %>% 
+  kableExtra::kbl(caption = "Table 1b: Frequency and percent of cases and hospitalisations by comorbidity risk factor level", digits=c(0,0,0,2,0,2,0,2)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") %>%
+  kableExtra::add_header_above(c(" " = 2, "Cohort" = 2, "Hospitalisations" = 2, "Deaths" = 2))
+
+```
+
+```{r table 1a, echo=FALSE }
+ options(knitr.kable.NA = '')
+
+ft %>% dplyr::select(Var, Values, rate_hosp_100, rate_ratio_hosp_covid,
+                     rate_covid_cod_100, rate_ratio_covid_cod) %>% 
+  kableExtra::kbl(caption = "Table: Rates pre 100 person days and rate ratios: cases and hospitalisations by comorbidity risk factor level", digits=c(0,0,4,2,4,2)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") %>%
+  kableExtra::add_header_above(c(" " = 2,  "Hospitalisations" = 2, "Deaths" = 2))
+
+```
+
+
+
+```{r table 2, echo=FALSE }
+ options(knitr.kable.NA = '')
+
+ft_demog %>% dplyr::select(Var, Values, N, Percent, hosp_covid, Percent_hosp, covid_cod, Percent_covid_cod) %>% 
+  kableExtra::kbl(caption = "Table 1b: Frequency and percent of cases and hospitalisations by demographic factor", digits=c(0,0,0,2,0,2,0,2)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") %>%
+  kableExtra::add_header_above(c(" " = 2, "Cohort" = 2, "Hospitalisations" = 2, "Deaths" = 2))
+
+
+```
+
+```{r table 2a, echo=FALSE }
+ options(knitr.kable.NA = '')
+
+ft_demog %>% dplyr::select(Var, Values, rate_hosp_100, rate_ratio_hosp_covid,
+                     rate_covid_cod_100,
+                     rate_ratio_covid_cod) %>% 
+  kableExtra::kbl(caption = "Table: Rates pre 100 person days and rate ratios: cases and hospitalisations by demograpic factor", digits=c(0,0,4,2,4,2)) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") %>%
+  kableExtra::add_header_above(c(" " = 2,  "Hospitalisations" = 2, "Deaths" = 2))
+
+```
