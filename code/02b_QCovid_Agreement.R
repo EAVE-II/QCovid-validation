@@ -76,7 +76,7 @@ fun_royston <- function(z){
   rsq <- (royston_d^2/k^2)/(pi^2/6 + royston_d^2/k^2)
   
   rsq_lci = (rd_lcl^2/k^2)/(pi^2/6 + rd_lcl^2/k^2)
-  rsq_uci = (rd_lcl^2/k^2)/(pi^2/6 + rd_lcl^2/k^2)
+  rsq_uci = (rd_ucl^2/k^2)/(pi^2/6 + rd_ucl^2/k^2)
   
   z_out <- data.frame(D=royston_d, D_LCL=rd_lcl, D_UCL=rd_ucl, R2=rsq, R2_LCL=rsq_lci, R2_UCL=rsq_uci)
   z_out
