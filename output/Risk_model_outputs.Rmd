@@ -1,0 +1,185 @@
+---
+title: "test plots"
+author: "Emily"
+date: "16/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(forestplot)
+library(broom)
+#Libraries
+library(dplyr)
+#library(tidyft) - only call tidyft if/when needed as it masks lots of other functions
+library(plyr)
+library(tidyverse)
+library(survival)
+library(ggplot2)
+library(tidyselect)
+library(tidyr)
+```
+
+```{r function, echo=FALSE}
+plot_HRs <- function(model, title = "" , cex=1){
+ # model <- z.fit.M.H
+#  cex <-1
+  
+  STAT <- as.data.frame(summary(model)$coef)
+  STAT <- STAT[!grepl("pspline", rownames(STAT)),]
+  CI <- as.data.frame(summary(model)$conf.int)
+  CI <- CI[!grepl("ps\\(", rownames(CI)),]  
+  #"term"      "estimate"  "std.error" "statistic" "p.value"   "conf.low"  "conf.high"
+  term <- rownames(STAT)
+  estimate <- as.numeric(CI[,1])
+  conf.low <- as.numeric(CI[,3])
+  conf.high<- as.numeric(CI[,4])
+  std.error <- as.numeric(STAT[,2])
+  statistic <- as.numeric(STAT[,4])
+  p.value <-as.numeric(STAT[,6])
+  mod.df <- as.data.frame(cbind(term, estimate,std.error ,statistic, p.value ,conf.low, conf.high))
+  
+  length(estimate)
+  vars <- c(  "estimate",  "std.error" ,"statistic", "p.value" ,  "conf.low" , "conf.high")
+  mod.df <-mod.df %>% mutate_at(vars, as.character) %>% mutate_at(vars, as.numeric)
+  mod.df$term <- as.character(mod.df$term)
+  
+  df1 <- mod.df %>% 
+    transmute( 
+      HR = estimate, 
+      low = conf.low, 
+      high = conf.high
+    )
+ 
+  ci <- paste0(  "(" ,formatC(as.numeric(conf.low), format = 'f', flag='0', digits = 2)  , # formatC keeps trailing 0
+                 " - ", formatC(as.numeric(conf.high), format = 'f', flag='0', digits = 2)  , ")")
+  HR_w_ci <- paste0( formatC(as.numeric(df1$HR), format = 'f', flag='0', digits = 2), " ", ci)
+  
+  row_names <- cbind(c("Name", mod.df$term),
+                     c("Adjusted hazard ratio (95% CI)",HR_w_ci))
+  df1 <- rbind(rep(NA, 4), df1)
+  
+  
+  forestplot(labeltext = row_names , #[c(1:6, 35:42),],
+             df1[, c("HR", "low", "high")],
+             is.summary=c(FALSE, FALSE, FALSE),
+             zero      = 1,
+             # clip=c(0.1,10), 
+             xlog      = TRUE, 
+             boxsize = .3,
+             txt_gp = fpTxtGp(label = gpar(fontfamily = "", cex= cex), 
+                              ticks = gpar(fontfamily = "", cex = cex)), 
+             title = title)
+  
+  }
+
+
+
+splineplot <- function(df=ptemp, term, centre, title = "" ){
+  #term <- "BMI"
+  #centre <- 22
+  timeterm <- df[[term]]
+  center <- with(timeterm, y[x== centre])
+  ytemp <- timeterm$y + outer(timeterm$se, c(0, -1.96, 1.96),'*')
+  matplot(timeterm$x, exp(ytemp - center), log='y',type='l', lty=c(1,2,2), col=1,
+          xlab= term, ylab="Relative hospitalisation rate", 
+          main = title)
+  abline(h=1, lty=2)
+}
+```
+
+
+## Risk models for Death
+```{r data death , echo =FALSE}
+
+z.fit.M.D <- readRDS("/conf/EAVE/GPanalysis/QCovid_Validation/output/EM_Model_Death_Male.rds")##males use my reruns.
+z.fit.F.D <- readRDS("/conf/EAVE/GPanalysis/QCovid_Validation/output/CR_Model_Death_Female.rds")
+z.fit.M.H <- readRDS("/conf/EAVE/GPanalysis/QCovid_Validation/output/EM_Model_Hosp_Male.rds")
+z.fit.F.H <- readRDS("/conf/EAVE/GPanalysis/QCovid_Validation/output/CR_Model_Hosp_Female.rds")
+```
+Description of modelling....
+
+A cox model was fitted using the risk facotrs for hospitalisaiton and death identified by QCOVID. With the exception that data for chemotherapy, radiotherapy and trtansplants wer not avalible 
+
+#### Females, deaths
+```{r splineplots FD, echo=FALSE}
+ptemp <- readRDS( "/conf/EAVE/GPanalysis/QCovid_Validation/output/temp/ptemp_F_D.rds")
+
+midtown <- (ptemp$town$x)[round(length(ptemp$town$x)/2)]
+splineplot(ptemp, "town", centre = midtown , title = "Females death risk by -  Townsend score")
+
+splineplot(ptemp, "BMI", centre = 22 , title = "Females death risk by -  BMI")
+
+splineplot(ptemp, "Age", centre = 20 , title = "Females death risk by -  Age")
+
+rm(ptemp)
+```
+
+```{r Females death, fig.width=16, fig.height=24, echo=FALSE}  
+ 
+plot_HRs(z.fit.F.D, title = "Females - Death. Adjusted for age, BMI and townsend score", cex=1.5)
+```
+
+#### males deaths
+```{r splineplots MD, echo=FALSE}
+ptemp <- readRDS( "/conf/EAVE/GPanalysis/QCovid_Validation/output/temp/ptemp_M_D.rds")
+
+
+midtown <- (ptemp$town$x)[round(length(ptemp$town$x)/2)]
+
+splineplot(ptemp, "town", centre = midtown , title = "Males death risk by -  Townsend score")
+
+splineplot(ptemp, "BMI", centre = 22 , title = "Males death risk by -  BMI")
+
+splineplot(ptemp, "Age", centre = 20 , title = "Males death risk by -  Age")
+
+rm(ptemp)
+```
+
+
+```{r males death, fig.width=16, fig.height=24 , echo=FALSE}  
+ 
+plot_HRs(z.fit.M.D, title = "Males - Death. Adjusted for age, BMI and townsend score", cex=1.5)
+```
+
+
+### Females hospitalisation
+```{r splineplots FH, echo=FALSE}
+ptemp <- readRDS( "/conf/EAVE/GPanalysis/QCovid_Validation/output/temp/ptemp_F_H.rds")
+
+midtown <- (ptemp$town$x)[round(length(ptemp$town$x)/2)]
+splineplot(ptemp, "town", centre = midtown, title = "Females hospitalisation risk by -  Townsend score")
+
+splineplot(ptemp, "BMI", centre = 22 , title = "Females hospitalisation risk by -  BMI")
+
+splineplot(ptemp, "Age", centre = 20 , title = "Females hospitalisation risk by -  Age")
+
+rm(ptemp)
+```
+
+```{r Females hosp, fig.width=16, fig.height=24, echo=FALSE}  
+ 
+plot_HRs(z.fit.F.H, title = "Females - hospitalisation. Adjusted for age, BMI and townsend score", cex=1.5)
+```
+
+#### Males hospitalisation
+
+```{r splineplots MH, echo=FALSE}
+ptemp <- readRDS( "/conf/EAVE/GPanalysis/QCovid_Validation/output/temp/ptemp_M_H.rds")
+
+midtown <- (ptemp$town$x)[round(length(ptemp$town$x)/2)]
+
+splineplot(ptemp, "town", centre = midtown, title = "Males hospitalisation risk by -  Townsend score")
+
+splineplot(ptemp, "BMI", centre = 22 , title = "Males hospitalisation risk by -  BMI")
+
+splineplot(ptemp, "Age", centre = 20 , title = "Males hospitalisation risk by -  Age")
+
+rm(ptemp)
+```
+
+
+```{r males hosp, fig.width=16, fig.height=24, echo=FALSE}  
+ 
+plot_HRs(z.fit.M.H, title = "Males - hospitalisation.  Adjusted for age, BMI and townsend score", cex=1.5)
+```
