@@ -51,9 +51,18 @@ breaks <- c(breaks, 89)
 labels <- paste0(labels, c(as.character(breaks)[-1], '+')  )
 breaks <- c(breaks, max(df$Age))
 
-df.risk.m <- mutate(df.risk.m, age_group = cut(Age, breaks, labels ))
-df.risk.f <- mutate(df.risk.f, age_group = cut(Age, breaks, labels ))
+df.risk.m <- mutate(df.risk.m, age_group = cut(Age, breaks, labels, include.lowest = TRUE))
+df.risk.f <- mutate(df.risk.f, age_group = cut(Age, breaks, labels, include.lowest = TRUE))
 
+arse <- select(df.risk.f, Time.To.Death, covid_cod, Qrisk_death) %>%
+        filter(age_group == '19-39')
+
+z <- concordance(Surv(Time.To.Death, covid_cod) ~ Qrisk_death, data=bob, reverse=TRUE)
+z.res.df <- c(z$concordance, sqrt(z$var))
+
+sum(is.na( bob$Qrisk_death))
+sum(is.nan( bob$covid_cod))
+sum(is.infinite( bob$Qrisk_death))
 
 calculate_Concordance <- function(age_grp){
   
@@ -100,12 +109,12 @@ outcomes <- unique(df_c$Group)
 for (outcome in outcomes){
     df_c_outcome <- filter(df_c, Group == outcome)
     
-    png( paste0('./output/c_', outcome, '_', z.period, '.png'))
+    png( paste0('../../output/c_', outcome, '_', z.period, '.png'))
     
     p <- ggplot(df_c_outcome, aes(x = age_group, y = Concordance), color = 'blue') +
       geom_point(size = 2, color = 'blue') +
       geom_errorbar(aes(ymin = Con_LCL, ymax = Con_UCL), color = 'blue') + 
-      scale_y_continuous(breaks =seq(0.35, 0.05)) +
+      scale_y_continuous(breaks =seq(0.35, 1, 0.05), limits = c(0.35, 1)) +
       theme_bw() +  xlab("Age group")
     
     print(p)
