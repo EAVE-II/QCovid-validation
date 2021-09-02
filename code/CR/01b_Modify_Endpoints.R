@@ -42,11 +42,11 @@ cohort_start_date <- as.Date("2020-03-01")
 #Censoring for hospitalisation: ####
 #end_date <- as.Date("2020-04-30")
 end_date <- as.Date("2020-06-30")
-z.period <-"P2" # second Period
+z.period <-"P1" # second Period
 
 #df$DATE_OF_DEATH <- NULL
-#a.begin <- as.Date("2020-03-01")  #  All who died or deducted before this date omitted
-a.begin <- as.Date("2020-05-01")  #  All who died or deducted before this date omitted
+a.begin <- as.Date("2020-03-01")  #  All who died or deducted before this date omitted
+#a.begin <- as.Date("2020-05-01")  #  All who died or deducted before this date omitted
 days_start_to_begin <-as.numeric(a.begin-cohort_start_date)
 a.end.death <- end_date 
 a.end.hosp <- end_date
