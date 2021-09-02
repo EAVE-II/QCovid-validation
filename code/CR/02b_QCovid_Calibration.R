@@ -29,18 +29,15 @@ Location <- "/conf/"  # Server
 
 #need df.risk.m, df.risk.f after running the scores
 #z.period <-"P2" # second Period
-#z.df <- df.risk.f
-#z.sex<- "Female"
-z.df <- df.risk.m
-z.sex<- "Male"
-z.b.hosp <- quantile(z.df$Qrisk_hosp, probs = seq(0,1,by=0.05))
+z.df <- df.risk.f
+z.sex<- "Female"
+#z.df <- df.risk.m
+#z.sex<- "Male"
 z.b.death <- quantile(z.df$Qrisk_death, probs = seq(0,1,by=0.05))
-z.df <- z.df %>% mutate(Risk_Hosp_20 = cut(Qrisk_hosp, breaks = z.b.hosp, include.lowest = TRUE,
-                                            labels=paste0("Q",1:20)),
-                        Risk_Death_20 = cut(Qrisk_death, breaks = z.b.death, include.lowest = TRUE,
+z.df <- z.df %>% mutate(Risk_Death_20 = cut(Qrisk_death, breaks = z.b.death, include.lowest = TRUE,
                                             labels=paste0("Q",1:20)) )
 z_dth <- z.df %>% group_by(Risk_Death_20) %>% 
-  dplyr::summarise(N=n(), R = sum(covid_cod), M=median(Qrisk_death))
+  dplyr::summarise(N=n(), R = sum(death_covid), M=median(Qrisk_death))
 z_dth <- z_dth %>% 
   mutate(P=R/N*100) %>% ungroup() %>% 
   dplyr::select(-N, -R) %>% 
@@ -53,6 +50,10 @@ g1 <- z_dth %>% ggplot(aes(x=Risk_Death_20, y=value, colour=name)) +
   geom_point() + labs(y="Risk (%)", x= "Vigentile Predicted Risk", colour= "",
                       title=z.title)
 
+z.df <- filter(z.df, hosp_remove==0)
+z.b.hosp <- quantile(z.df$Qrisk_hosp, probs = seq(0,1,by=0.05))
+z.df <- z.df %>% mutate(Risk_Hosp_20 = cut(Qrisk_hosp, breaks = z.b.hosp, include.lowest = TRUE,
+                                           labels=paste0("Q",1:20)) )
 z_hosp <- z.df %>%  filter(hosp_remove==0) %>% group_by(Risk_Hosp_20) %>% 
   dplyr::summarise(N=n(), R = sum(hosp_covid), M=median(Qrisk_hosp))
 z_hosp <- z_hosp %>% 

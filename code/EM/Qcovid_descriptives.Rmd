@@ -1,0 +1,44 @@
+---
+title: "Qcovid descriptions"
+author: "Emily"
+date: "12/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+
+#source("/conf/EAVE/GPanalysis/QCovid_Validation/progs/EM/01_QCovid_Descriptions.R")
+
+```
+
+## Q covid risk groups descriptors
+
+
+```{r table 1, echo=FALSE }
+ options(knitr.kable.NA = '')
+
+ft <- readRDS("/conf/EAVE/GPanalysis/outputs/temp/Qcovid_descr_tab1.rds")
+ft %>%
+  kableExtra::kbl(caption = "Table 1b: Frequency and percent of cases and hospitalisations by comorbidity risk factor level") %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") %>%
+  kableExtra::add_header_above(c(" " = 2, "Cohort" = 2, "Weighted cohort" = 2,  "Hospitalisations" = 2, "Deaths" = 2))
+
+```
+
+
+
+
+
+
+```{r pressure, echo=FALSE}
+ options(knitr.kable.NA = '')
+
+ft2 <- readRDS( "/conf/EAVE/GPanalysis/outputs/temp/Qcovid_descr_tab2.rds")
+ft2 %>%
+  kableExtra::kbl(caption = "Table 1b: Frequency and percent of cases, hospitalisations and deaths by QCOVID demographics") %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria") %>%
+   kableExtra::add_header_above(c(" " = 2, "Cohort" = 2, "Weighted cohort" = 2,  "Hospitalisations" = 2, "Deaths" = 2))
+```
+

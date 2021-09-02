@@ -18,8 +18,8 @@
 
 
 
-# The four functions in this code all take as an argument an n x 40 matrix where each column is an attribute. The following is an orderer 
-# list of the columns in x. I have added spaces to indicate different variable "groupings". Further information on the variables can be found in
+# The four functions in this code all take as an argument a 40-dimensional vector of attributes x. The following is a list of the component 
+# variables in x. I have added spaces to indicate different variable "groupings". Further information on the variables can be found in
 # the file "Qcovid core clusters".
 # 
 #   1. age
@@ -70,7 +70,7 @@
 
 
 
-# death_female is a function that predicts the probability of death of females.
+# death_female is a function that predicts the probability of death of a female with attribute vector x.
 
 death_female <- function(x){
   
@@ -83,10 +83,9 @@ death_female <- function(x){
   
   survivor[91] <- 0.999977290630341
   
-  
   # Ichemocat, iethrisk, Ihomecat, Ilearncat and Irenalcat each contain estimated parameter values corresponding to categorical variables
   # that can take on multiple values.
-  
+ 
   Ichemocat <- c(0, 0.8345234517964427167768804, 
                  1.2595202625466794810193960, 
                  2.8514552483447963560081462) 
@@ -110,6 +109,7 @@ death_female <- function(x){
                  0.3039596464330543423848496,
                  3.4826484000729771572935078)
   
+  
   Irenalcat <- c(0,
                  0,
                  0.2651025698152708609534045,
@@ -117,7 +117,6 @@ death_female <- function(x){
                  1.0983587266864589526704776,
                  0.9870752383405548835426657,
                  2.0594912500810331756895266)
-  
   
   # dage, age_1, age_2, bmi_1, bmi-2 and town are all new variables derived from elements of x
   
@@ -139,51 +138,52 @@ death_female <- function(x){
   # coef is a vector of coefficients for variables x[10:40]
   
   coef <- c(0.0859851843797995313289917,
-            0.2037201166969377086335413,
-            0.6019896780418610982010819,
-            0.1660328711606123830435422,
-            0.3158788199551698649969467,
-            -0.1708080810500710866595142,
-            0.4045790554089616630761839,
-            1.2375891121070539124815468,
-            0.2178442812641575854204490,
-            0.6165061556893419725255967,
-            0.2099695358513284648704911,
-            0.4069036991923689616790227,
-            1.0673649341196249640262295,
-            0.4563898846837706191337247,
-            0.1142356737251236653563069,
-            1.0103599800977995926132280,
-            0.1256622652011334939636811,
-            0.4365766436191424459956067,
-            -0.1665545651399719662144605,
-            0.3521144005866303494656222,
-            0.2775017265662046983543121,
-            0.5288182839278391389470357,
-            0.2549134429838964543968416,
-            1.7818709562115360167666722,
-            0.2915465900033972213023503,
-            1.3918300744178950800744587,
-            1.8389652399973426266654997,
-            0.1657707292848709101917848,
-            1.0220219382440418609547805,
-            0.7446485607185400201757375,
-            0.3787854828143376040294754)
-  
+           0.2037201166969377086335413,
+           0.6019896780418610982010819,
+           0.1660328711606123830435422,
+           0.3158788199551698649969467,
+           -0.1708080810500710866595142,
+           0.4045790554089616630761839,
+           1.2375891121070539124815468,
+           0.2178442812641575854204490,
+           0.6165061556893419725255967,
+           0.2099695358513284648704911,
+           0.4069036991923689616790227,
+           1.0673649341196249640262295,
+           0.4563898846837706191337247,
+           0.1142356737251236653563069,
+           1.0103599800977995926132280,
+           0.1256622652011334939636811,
+           0.4365766436191424459956067,
+           -0.1665545651399719662144605,
+           0.3521144005866303494656222,
+           0.2775017265662046983543121,
+           0.5288182839278391389470357,
+           0.2549134429838964543968416,
+           1.7818709562115360167666722,
+           0.2915465900033972213023503,
+           1.3918300744178950800744587,
+           1.8389652399973426266654997,
+           0.1657707292848709101917848,
+           1.0220219382440418609547805,
+           0.7446485607185400201757375,
+           0.3787854828143376040294754)
   
   # score is the predicted probability as a percentage.
   # a is used in calculating score.
   
-  a <- Ichemocat[ x[,5] ]  + Iethrisk[ x[,6] ] + Ihomecat[ x[,7] ] + Ilearncat[ x[,8] ] + Irenalcat[ x[,9] ]
+   a <- Ichemocat[ x[,5] ]  + Iethrisk[ x[,6] ] + Ihomecat[ x[,7] ] + Ilearncat[ x[,8] ] + Irenalcat[ x[,9] ]
+   
+   a <- a + 0.0535266800950749549459218 * age_1 - 0.0200935878258154260178614 * age_2 - 19.7435582245984164728724863 * bmi_1 +
+            6.6648702078668167203545636 * bmi_2 + 0.0787269477751315061020421 * town
   
-  a <- a + 0.0535266800950749549459218 * age_1 - 0.0200935878258154260178614 * age_2 - 19.7435582245984164728724863 * bmi_1 +
-    6.6648702078668167203545636 * bmi_2 + 0.0787269477751315061020421 * town
   
-  a <- a + (as.matrix(x[,10:40]) %*% coef ) - 0.0200621605517602719093162 * age_1 * x[,36] + 0.0074957790032429043661222 * age_2 * x[,36]
-  
-  score <- 100.0 * (1 -  exp( exp(a) * log( survivor[ x[,4] ] )  )  )
-  
-  return(list(score, a))
+   a <- a + (as.matrix(x[,10:40]) %*% coef ) - 0.0200621605517602719093162 * age_1 * x[,37] + 0.0074957790032429043661222 * age_2 * x[,37]
+   
+   
+   score <- 100.0 * (1 -  survivor[ x[,4] ]^( exp(a) ) ) 
+           
+   return(list(score=score, a=a))
 }
 
 
@@ -192,7 +192,7 @@ death_female <- function(x){
 
 
 
-# hospital_female is a function that predicts the probability of hospitalisation females.
+# hospital_female is a function that predicts the probability of hospitalisation of a female with attribute vector x.
 
 hospital_female <- function(x){
   
@@ -229,7 +229,7 @@ hospital_female <- function(x){
   Ihomecat <- c(0,
                 0.6111109399113108242573844,
                 0.2046773133743576833509792)
-  
+
   
   Ilearncat <- c(0,
                  0.4267124890741003651051244,
@@ -302,14 +302,14 @@ hospital_female <- function(x){
   a <- Ichemocat[ x[,5] ]  + Iethrisk[ x[,6] ] + Ihomecat[ x[,7] ] + Ilearncat[ x[,8] ] + Irenalcat[ x[,9] ]
   
   a <- a  -0.1484733673762321515265938 * age_1 + 0.0405941535676193412940371 * age_2 + 6.1144623880326562925802136 * bmi_1 +
-    2.7351660262730592698687815 * bmi_2 + 0.0837552324383479818159515 * town
+          2.7351660262730592698687815 * bmi_2 + 0.0837552324383479818159515 * town
   
   
-  a <- a + (as.matrix(x[,10:40]) %*% coef ) - 1.1514860942738034399468461 * age_1 * x[,36] + 0.0018396028070442396740169 * age_2 * x[,36]
+  a <- a + (as.matrix(x[,10:40]) %*% coef ) - 1.1514860942738034399468461 * age_1 * x[,37] + 0.0018396028070442396740169 * age_2 * x[,37]
   
-  score <- 100.0 * (1 -  exp( exp(a) * log( survivor[ x[,4] ] )  )  )
+  score <- 100.0 * (1 -  survivor[ x[,4] ]^( exp(a) ) ) 
   
-  return(list(score, a))
+  return(list(score=score, a=a))
 }
 
 
@@ -317,7 +317,7 @@ hospital_female <- function(x){
 
 
 
-# death_male is a function that predicts the probability of death of a males.
+# death_male is a function that predicts the probability of death of a male with attribute vector x.
 
 death_male <- function(x){
   
@@ -424,14 +424,14 @@ death_male <- function(x){
   a <- Ichemocat[ x[,5] ]  + Iethrisk[ x[,6] ] + Ihomecat[ x[,7] ] + Ilearncat[ x[,8] ] + Irenalcat[ x[,9] ]
   
   a <- a + 1.4547532388624053734105246 * age_1 - 0.0028280265297625597521736 * age_2 - 22.0609948165960112476113864 * bmi_1 -
-    20.3035078034241216471400548 * bmi_2  + 0.0812689785693790078813237 * town
+          20.3035078034241216471400548 * bmi_2  + 0.0812689785693790078813237 * town
   
   
-  a <- a + (as.matrix(x[,10:40]) %*% coef) - 0.5325370730252168005591784 * age_1 * x[,36] + 0.0013434948852218797209906 * age_2 * x[,36]
+  a <- a + (as.matrix(x[,10:40]) %*% coef) - 0.5325370730252168005591784 * age_1 * x[,37] + 0.0013434948852218797209906 * age_2 * x[,37]
   
-  score <- 100.0 * (1 -  exp( exp(a) * log( survivor[ x[,4] ] )  )  ) 
+  score <- 100.0 * (1 -  survivor[ x[,4] ]^( exp(a) ) ) 
   
-  return(list(score, a))
+  return(list(score=score, a=a))
 }
 
 
@@ -440,7 +440,7 @@ death_male <- function(x){
 
 
 
-# hospital_male is a function that predicts the probability of hospitalisation of a males.
+# hospital_male is a function that predicts the probability of hospitalisation of a male with attribute vector x.
 
 hospital_male <- function(x){
   
@@ -550,13 +550,14 @@ hospital_male <- function(x){
   a <- Ichemocat[ x[,5] ]  + Iethrisk[ x[,6] ] + Ihomecat[ x[,7] ] + Ilearncat[ x[,8] ] + Irenalcat[ x[,9] ]
   
   a <- a -9.8655000090771149956481167 * age_1 + 0.0372128338797922050829037 * age_2 + 21.1033159148484443790039222 * bmi_1 +
-    7.4762210517919633900874032 * bmi_2 + 0.0763068123197961217796248 * town
+          7.4762210517919633900874032 * bmi_2 + 0.0763068123197961217796248 * town
   
   
-  a <- a + (as.matrix(x[,10:40]) %*% coef) + 8.1824740477927431214766330 * age_1 * x[,36] - 0.0088155777714664287220137 * age_2 * x[,36]
+  a <- a + (as.matrix(x[,10:40]) %*% coef) + 8.1824740477927431214766330 * age_1 * x[,37] - 0.0088155777714664287220137 * age_2 * x[,37]
   
-  score <- 100.0 * (1 -  exp( exp(a) * log( survivor[ x[,4] ] )  )  )
+  score <- 100.0 * (1 -  survivor[ x[,4] ]^( exp(a) ) ) 
   
-  return(list(score, a))
+  return(list(score=score, a=a))
 }
+
 

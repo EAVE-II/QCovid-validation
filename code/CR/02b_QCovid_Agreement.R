@@ -41,24 +41,76 @@ Location <- "/conf/"  # Server
 #z.fit <- coxph(Surv(Time.To.Hosp, hosp_covid) ~ score, data=df2)
 #concordance(z.fit)
 
-z <- concordance(Surv(Time.To.Hosp, hosp_covid) ~ Qrisk_hosp, data=filter(df.risk.f, hosp_remove==0),reverse=TRUE)
-z.res.hf <- c(z$concordance, sqrt(z$var))
-z <- concordance(Surv(Time.To.Death, covid_cod) ~ Qrisk_death, data=df.risk.f, reverse=TRUE)
-z.res.df <- c(z$concordance, sqrt(z$var))
-z <- concordance(Surv(Time.To.Hosp, hosp_covid) ~ Qrisk_hosp, data=filter(df.risk.m, hosp_remove==0), reverse=TRUE)
-z.res.hm <- c(z$concordance, sqrt(z$var))
-z <- concordance(Surv(Time.To.Death, covid_cod) ~ Qrisk_death, data=df.risk.m, reverse=TRUE)
-z.res.dm <- c(z$concordance, sqrt(z$var))
-z.res <- rbind(z.res.hf, z.res.df, z.res.hm, z.res.dm)
-z.res <- data.frame(Group=c("Hosp Female","Death_Female","Hosp_Male","Death_Male"),
-                    Concordance=as.numeric(as.character(z.res[,1])), 
-                    SE_C=as.numeric(as.character(z.res[,2])))
-z.res <- z.res %>% mutate(Con_LCL=Concordance - 1.96*SE_C,Con_UCL=Concordance + 1.96*SE_C ) 
-
-saveRDS(z.res, paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_Concordance_",z.period,".rds"))
+# Steven: Create breaks and labels for age category
+# Used for calculating C-statistic by age group
+breaks <- c(19, 39, seq(44, 84, by = 5))
 
 
+labels <- c(paste0( c('19', as.character(breaks[-1] +1)), '-'), 89)
+breaks <- c(breaks, 89)
+labels <- paste0(labels, c(as.character(breaks)[-1], '+')  )
+breaks <- c(breaks, max(df$Age))
 
+df.risk.m <- mutate(df.risk.m, age_group = cut(Age, breaks, labels ))
+df.risk.f <- mutate(df.risk.f, age_group = cut(Age, breaks, labels ))
+
+
+calculate_Concordance <- function(age_grp){
+  
+  if (age_grp != 'all'){
+    df.risk.f <- filter(df.risk.f, age_group == age_grp)
+    df.risk.m <- filter(df.risk.m, age_group == age_grp)
+  }
+  
+  z <- concordance(Surv(Time.To.Hosp, hosp_covid) ~ Qrisk_hosp, data=filter(df.risk.f, hosp_remove==0),reverse=TRUE)
+  z.res.hf <- c(z$concordance, sqrt(z$var))
+  z <- concordance(Surv(Time.To.Death, covid_cod) ~ Qrisk_death, data=df.risk.f, reverse=TRUE)
+  z.res.df <- c(z$concordance, sqrt(z$var))
+  z <- concordance(Surv(Time.To.Hosp, hosp_covid) ~ Qrisk_hosp, data=filter(df.risk.m, hosp_remove==0), reverse=TRUE)
+  z.res.hm <- c(z$concordance, sqrt(z$var))
+  z <- concordance(Surv(Time.To.Death, covid_cod) ~ Qrisk_death, data=df.risk.m, reverse=TRUE)
+  z.res.dm <- c(z$concordance, sqrt(z$var))
+  z.res <- rbind(z.res.hf, z.res.df, z.res.hm, z.res.dm)
+  z.res <- data.frame(Group=c("Hosp Female","Death_Female","Hosp_Male","Death_Male"),
+                      Concordance=as.numeric(as.character(z.res[,1])), 
+                      SE_C=as.numeric(as.character(z.res[,2])))
+  z.res <- z.res %>% mutate(Con_LCL=Concordance - 1.96*SE_C,Con_UCL=Concordance + 1.96*SE_C) 
+
+return(z.res)
+}
+
+saveRDS(calculate_Concordance('all'), paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qcovid_Concordance_",z.period,".rds"))
+
+# Calculate C statistics by age group and combine into a dataframe
+c_list <- list()
+
+for (age_group in labels){
+  
+  c_list[[age_group]] <- calculate_Concordance(age_group) %>% mutate(age_group = age_group)
+}
+
+df_c <- c_list %>% reduce(full_join)
+
+# Some upper limits on concordance go slightly higher than 1
+df_c$Con_UCL[df_c$Con_UCL >1 ] <- 1
+
+# Create graphs of concordance by outcome and age group
+outcomes <- unique(df_c$Group)
+
+for (outcome in outcomes){
+    df_c_outcome <- filter(df_c, Group == outcome)
+    
+    png( paste0('./output/c_', outcome, '_', z.period, '.png'))
+    
+    p <- ggplot(df_c_outcome, aes(x = age_group, y = Concordance), color = 'blue') +
+      geom_point(size = 2, color = 'blue') +
+      geom_errorbar(aes(ymin = Con_LCL, ymax = Con_UCL), color = 'blue') + 
+      theme_bw() +  xlab("Age group")
+    
+    print(p)
+    
+    dev.off()
+}
 
 #z <- slice_sample(df.risk.f, n=10000)
 #z <- df.risk.f[1:10000,]
@@ -108,12 +160,12 @@ saveRDS(z.res, paste0(Location, "EAVE/GPanalysis/QCovid_Validation/output/CR_Qco
 #Hmisc::somers2(df.risk.f$Qrisk_hosp, df.risk.f$hosp_covid)
 #Hmisc::somers2(df.risk.f$Qrisk_death, df.risk.f$death_covid)
 
-
-z.markers = list(Qrisk_hosp=df.risk.f$Qrisk_hosp)
+z.df <- filter(df.risk.f, hosp_remove==0)
+z.markers = list(Qrisk_hosp=z.df$Qrisk_hosp)
 z.b <- riskRegression::Score(z.markers,formula=Hist(Time.To.Hosp, hosp_covid)~1,
-                      data=filter(df.risk.f, hosp_remove==0), metrics=c("Brier"),
+                      data=z.df, metrics=c("Brier"),
                       summary="ibs",
-                      times=max(df.risk.f$Time.To.Hosp))
+                      times=max(z.df$Time.To.Hosp))
 z.res.hf <- z.b$Brier$score[2,c(3,5)]
 z.markers = list(Qrisk_death=df.risk.f$Qrisk_death)
 z.b <- riskRegression::Score(z.markers,formula=Hist(Time.To.Death, death_covid)~1,data=df.risk.f,metrics=c("Brier"),
@@ -121,11 +173,12 @@ z.b <- riskRegression::Score(z.markers,formula=Hist(Time.To.Death, death_covid)~
                              times=max(df.risk.f$Time.To.Death))
 z.res.df <- z.b$Brier$score[2,c(3,5)]
 
-z.markers = list(Qrisk_hosp=df.risk.m$Qrisk_hosp)
+z.df <- filter(df.risk.m, hosp_remove==0)
+z.markers = list(Qrisk_hosp=z.df$Qrisk_hosp)
 z.b <- riskRegression::Score(z.markers,formula=Hist(Time.To.Hosp, hosp_covid)~1,
-                             data=filter(df.risk.m, hosp_remove==0), metrics=c("Brier"),
+                             data=z.df, metrics=c("Brier"),
                              summary="ibs",
-                             times=max(df.risk.m$Time.To.Hosp))
+                             times=max(z.df$Time.To.Hosp))
 z.res.hm <- z.b$Brier$score[2,c(3,5)]
 z.markers = list(Qrisk_death=df.risk.m$Qrisk_death)
 z.b <- riskRegression::Score(z.markers,formula=Hist(Time.To.Death, death_covid)~1,data=df.risk.m,metrics=c("Brier"),
