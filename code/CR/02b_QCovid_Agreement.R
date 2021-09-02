@@ -105,6 +105,7 @@ for (outcome in outcomes){
     p <- ggplot(df_c_outcome, aes(x = age_group, y = Concordance), color = 'blue') +
       geom_point(size = 2, color = 'blue') +
       geom_errorbar(aes(ymin = Con_LCL, ymax = Con_UCL), color = 'blue') + 
+      scale_y_continuous(breaks =seq(0.35, 0.05)) +
       theme_bw() +  xlab("Age group")
     
     print(p)
