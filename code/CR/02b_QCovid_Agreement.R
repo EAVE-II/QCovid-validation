@@ -54,16 +54,6 @@ breaks <- c(breaks, max(df$Age))
 df.risk.m <- mutate(df.risk.m, age_group = cut(Age, breaks, labels, include.lowest = TRUE))
 df.risk.f <- mutate(df.risk.f, age_group = cut(Age, breaks, labels, include.lowest = TRUE))
 
-arse <- select(df.risk.f, Time.To.Death, covid_cod, Qrisk_death) %>%
-        filter(age_group == '19-39')
-
-z <- concordance(Surv(Time.To.Death, covid_cod) ~ Qrisk_death, data=bob, reverse=TRUE)
-z.res.df <- c(z$concordance, sqrt(z$var))
-
-sum(is.na( bob$Qrisk_death))
-sum(is.nan( bob$covid_cod))
-sum(is.infinite( bob$Qrisk_death))
-
 calculate_Concordance <- function(age_grp){
   
   if (age_grp != 'all'){

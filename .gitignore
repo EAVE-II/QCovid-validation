@@ -1,1 +1,6 @@
 *.rds
+/documents
+/code/CR/02_QCovid_prediction.R
+/code/CR/02_QCovid_Prediction.txt
+/code/CR/02_QCovid_prediction_vectored.R
+/code/CR/02_QCovid_prediction_vectored.txt

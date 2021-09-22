@@ -139,12 +139,22 @@ z <- as.data.frame(z)
 names(z) <- c("Qrisk_hosp","a.hosp")
 df.risk.m <- bind_cols(df.risk.m,z)
 
+
+
 calc_OE <- function(df){
-  output <- df %>% summarise_at(c('Qrisk_hosp', 'hosp_covid', 'Qrisk_death', 'covid_cod'), sum) %>%
-    mutate_at( c('Qrisk_hosp', 'Qrisk_death'), ~ ./100) %>%
-    mutate( death = round(covid_cod/Qrisk_death, 2), 
-            hosp = round(hosp_covid/Qrisk_hosp  , 2)) %>%
-    select(death, hosp)
+  death <- df %>% summarise_at( c('Qrisk_death', 'death_covid'), sum) %>%
+    mutate_at( 'Qrisk_death' , ~ ./100) %>%
+    mutate( death = round(death_covid/Qrisk_death, 2)) %>%
+    select(death)
+  
+  
+  hosp <- df %>% filter(hosp_remove == 0) %>%
+    summarise_at(c('Qrisk_hosp', 'hosp_covid'), sum) %>%
+    mutate_at( 'Qrisk_hosp', ~ ./100) %>%
+    mutate(hosp = round(hosp_covid/Qrisk_hosp  , 2)) %>%
+    select(hosp)
+  
+  output <- cbind(hosp,death)
   
   return(output)
 }
@@ -153,7 +163,7 @@ male_OE <- calc_OE(df.risk.m)
 names(male_OE) <- paste0(names(male_OE), '_male')
 
 female_OE <- calc_OE(df.risk.f)
-names(female_OE) <- paste0(names(female_OE), '_male')
+names(female_OE) <- paste0(names(female_OE), '_female')
 
 OE <- cbind(female_OE, male_OE)
 
